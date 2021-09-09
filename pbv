@@ -11,6 +11,7 @@ CWD = os.getcwd()
 
 parser = argparse.ArgumentParser(description="",
 usage="""pbv [<args>]
+Produces VCF output of duplications in reference genome from insertions found in assembly of genome.
 """)
 
 parser.add_argument("--asm", help="assembly fasta",required=True)
@@ -23,7 +24,7 @@ parser.add_argument("--outdir", help="Output directory",default=".")
 #    parser.add_argument("--configfile", help="provide config json ")
 parser.add_argument("--scr",  help="Scripts DIR",default="." )
 
-SMK = f"{DIR}/pacbio_validator.smk"
+SMK = f"{DIR}/pbv.smk"
 
 args = parser.parse_args()
 
