@@ -19,10 +19,12 @@ rule align:
         #bai="asmTOref.bam.bai",
     params:
         thr=config['t'],
-
+        map_p=config['mp'],
+        temp=config['temp'],
     shell:"""
  
- lra align -CONTIG -p s {input.ref} {input.asm} -t {params.thr} > {output}
+ lra align -CONTIG -p s {input.ref} {input.asm} -t {params.thr} {params.map_p} | \
+    samtools sort -T {params.temp}/asm.$$ -m2G -o {output}
 samtools index {output}
 
 """
@@ -37,7 +39,7 @@ rule findIns:
         asm=config['asm']
     shell:"""
 
-htsbox > bed
+htsbox {input.bam} > {output.bed}
 
 bedtools getfasta -fi {params.asm} -bed {output.bed} > {output.fasta}
 """
@@ -51,9 +53,11 @@ rule maptoRef:
     params:
         ref=config['ref'],
         thr=config['t'],
+        temp=config['temp'],
     shell:"""
 
-minimap2 {params.ref} {input.fasta} -t {params.thr} > {output.bam2}
+minimap2 -a {params.ref} {input.fasta} -t {params.thr} | \
+   samtools sort -T {params.temp}/asm.$$ -m2G -o {output.bam2}
 samtools index {output.bam2}
 
 """
@@ -68,6 +72,6 @@ rule callDUP:
     params:
     shell:"""
 
-hmcnc bam2 > vcf
+hmcnc {input.bam2} > {output.vcf}
 
 """

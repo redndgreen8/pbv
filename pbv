@@ -23,10 +23,20 @@ parser.add_argument("--mq", help="Min MapQ for reads", default=10)
 parser.add_argument("--outdir", help="Output directory",default=".")
 #    parser.add_argument("--configfile", help="provide config json ")
 parser.add_argument("--scr",  help="Scripts DIR",default="." )
+parser.add_argument("--temp", help="temp directory", default="/tmp")
+
+
 
 SMK = f"{DIR}/pbv.smk"
 
 args = parser.parse_args()
+
+
+if int(args.subread) == 0:
+    rt="-CCS"
+elif int(args.subread) == 1:
+    rt="-CLR"
+
 
 SCR = f"{args.scr}"
 
@@ -38,6 +48,7 @@ cmd += " --config "
 for arg in vars(args):
     val = getattr(args, arg)
     cmd += f'{arg}={val} '
+cmd+= f'mp={rt}'
 
 # execute snakemake
 sys.stderr.write(cmd+"\n")
