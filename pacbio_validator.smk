@@ -18,16 +18,14 @@ rule align:
         bam="asmTOref.bam",
         #bai="asmTOref.bam.bai",
     params:
+        thr=config['t'],
 
     shell:"""
  
- lra  align -CONTIG -p s {input.ref} {input.asm} > {output}
+ lra align -CONTIG -p s {input.ref} {input.asm} -t {params.thr} > {output}
 samtools index {output}
 
 """
-
-
-
 
 rule findIns:
     input:
@@ -52,9 +50,10 @@ rule maptoRef:
         bam2="insTOref.bam",
     params:
         ref=config['ref'],
+        thr=config['t'],
     shell:"""
 
-minimap2 {params.ref} {input.fasta} > {output.bam2}
+minimap2 {params.ref} {input.fasta} -t {params.thr} > {output.bam2}
 samtools index {output.bam2}
 
 """
