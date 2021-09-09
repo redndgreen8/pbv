@@ -3,7 +3,7 @@
 ## PacBio Validator
 
 ### Needs assembly sequence and reference sequence to run.
-### Produces VCF output of DUPs in reference genome from insertions found in assembly of genome.
+### Produces VCF output of duplications in reference genome from insertions found in assembly of genome.
 
 #### Programs needed (recommended to use conda package manager)
 - bedtools
