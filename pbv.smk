@@ -1,4 +1,5 @@
 
+SD = os.path.dirname(workflow.snakefile)
 
 
 
@@ -47,28 +48,16 @@ rule extractLargeSVasm:
     input:
         vcf1="asmTOref.INS.vcf",
     output:
-        vcf="asmTOref.Large_INS.vcf",
-    params:
-        minl=config['minL']
-    shell:"""
-awk '{{if ($1~/^#/) {{print$0;}} else if (length($5) > length($4)+ {params.minl} || length($4) > length($5) + {params.minl} ) {{print$0;}} }}' {input} > {output}
-
-"""
-
-rule extractInsFasta:
-    input:
-        vcf="asmTOref.Large_INS.vcf",
-    output:
-        bed="asmTOref.bed",
         fasta="asmTOref.fa",
     params:
-        asm=config['asm']
+        minl=config['minL'],
+        sd=SD;
     shell:"""
+awk '{{if ($1~/^#/) {{print$0;}} else if (length($5) > length($4)+ {params.minl} || length($4) > length($5) + {params.minl} ) {{print $1"_"$2"\t"$5;}} }}'  {input} | grep -v "#" | python {params.sd}/extractFa.py > {output}
 
-grep -v "#" {input} > {output.bed}
-bedtools getfasta -fi {params.asm} -bed {output.bed} > {output.fasta}
 
 """
+
 
 
 rule maptoRef:
