@@ -5,7 +5,8 @@
 rule all:
     input:
         bam="asmTOref.bam",
-        bed="asmTOref.INS.bed",
+        bed="asmTOref.bed",
+        vcf1="asmTOref.INS.vcf",
         fasta="asmTOref.fa",
         bam2="insTOref.bam",
         vcf="DUPs.vcf",
@@ -33,15 +34,40 @@ rule findIns:
     input:
         bam="asmTOref.bam",
     output:
-        bed="asmTOref.INS.bed",
+        vcf1="asmTOref.INS.vcf",
+    params:
+        asm=config['asm'],
+        ref=config['ref'],
+    shell:"""
+htsbox pileup -f {params.ref}  -q 5 -S 10000 -T 20 {input.bam} -c > {output.vcf1}
+
+"""
+
+rule extractLargeSVasm:
+    input:
+        vcf1="asmTOref.INS.vcf",
+    output:
+        vcf="asmTOref.Large_INS.vcf",
+    params:
+        minl=config['minL']
+    shell:"""
+awk '{{if ($1~/^#/) {{print$0;}} else if (length($5) > length($4)+ {params.minl} || length($4) > length($5) + {params.minl} ) {{print$0;}} }}' {input} > {output}
+
+"""
+
+rule extractInsFasta:
+    input:
+        vcf="asmTOref.Large_INS.vcf",
+    output:
+        bed="asmTOref.bed",
         fasta="asmTOref.fa",
     params:
         asm=config['asm']
     shell:"""
 
-htsbox {input.bam} > {output.bed}
-
+grep -v "#" {input} > {output.bed}
 bedtools getfasta -fi {params.asm} -bed {output.bed} > {output.fasta}
+
 """
 
 
