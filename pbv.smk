@@ -6,7 +6,6 @@ SD = os.path.dirname(workflow.snakefile)
 rule all:
     input:
         bam="asmTOref.bam",
-        bed="asmTOref.bed",
         vcf1="asmTOref.INS.vcf",
         fasta="asmTOref.fa",
         bam2="insTOref.bam",
@@ -51,7 +50,7 @@ rule extractLargeSVasm:
         fasta="asmTOref.fa",
     params:
         minl=config['minL'],
-        sd=SD;
+        sd=SD,
     shell:"""
 awk '{{if ($1~/^#/) {{print$0;}} else if (length($5) > length($4)+ {params.minl} || length($4) > length($5) + {params.minl} ) {{print $1"_"$2"\t"$5;}} }}'  {input} | grep -v "#" | python {params.sd}/extractFa.py > {output}
 
