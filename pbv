@@ -1,0 +1,55 @@
+#!/usr/bin/env python
+
+
+import os
+import sys
+import argparse
+import subprocess
+DIR = os.path.dirname( os.path.realpath(__file__) )
+CWD = os.getcwd()
+
+
+
+
+parser = argparse.ArgumentParser(description="",
+usage="""pbv [<args>]
+""")
+
+parser.add_argument("--asm", help="assembly fasta",required=True)
+parser.add_argument("--ref", help="reference fasta",required=True)
+parser.add_argument("--minL", help="min insertion length", default=5000, type=int)
+parser.add_argument("-t", "--threads", help="Threads available", default=1, type=int)
+parser.add_argument("--subread", help="[1|0], Needs subread filtering or not.(clr Vs ccs)" ,default=0)
+parser.add_argument("--mq", help="Min MapQ for reads", default=10)
+parser.add_argument("--outdir", help="Output directory",default=".")
+#    parser.add_argument("--configfile", help="provide config json ")
+parser.add_argument("--scr",  help="Scripts DIR",default="." )
+
+SMK = f"{DIR}/pacbio_validator.smk"
+
+args = parser.parse_args()
+
+
+SCR = f"{args.scr}"
+
+cmd=f'''snakemake -n -p -k -j {args.threads} -s {SMK} \
+'''
+
+#snakeargs = " ".join(snakeargs)
+#if(len(snakeargs) > 0):
+#    sys.stderr.write(f"Extra arguments passed to snakemake: {snakeargs}\n\n")
+#    cmd += f" {snakeargs} "
+
+
+
+# add configuration options from argparse
+cmd += " --config "
+for arg in vars(args):
+    val = getattr(args, arg)
+    cmd += f'{arg}={val} '
+#cmd += f'scr={SCR}'
+
+# execute snakemake
+sys.stderr.write(cmd+"\n")
+#print(DIR,CWD)
+subprocess.call(cmd, shell=True)
