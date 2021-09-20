@@ -17,6 +17,7 @@ for line in sys.stdin:
     ct=len(seqs)
     #print(str(ct))
     for r in range(ct):
-    	if len(seqs[r]) > args.minl:
-    		reads.append(">" + contig + str(r)+ "_" + str(ct) + "\n" + seqs[r])
+    	rlen=len(seqs[r])
+        if rlen > args.minl:
+    		reads.append(">" + contig + str(r)+ "_" + str(ct) + ":" + str(rlen) + "\n" + seqs[r])
 sys.stdout.write("\n".join(reads))

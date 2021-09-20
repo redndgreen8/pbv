@@ -39,7 +39,7 @@ rule findIns:
         asm=config['asm'],
         ref=config['ref'],
     shell:"""
-htsbox pileup -f {params.ref}  -q 5 -S 10000 -T 20 {input.bam} -c > {output.vcf1}
+htsbox pileup -f {params.ref}  -q 10 -S 10000 -T 20 {input.bam} -c > {output.vcf1}
 
 """
 
@@ -78,14 +78,31 @@ samtools index {output.bam2}
 
 
 
-rule callDUP:
+rule samtoBed:
     input:
         bam2="insTOref.bam",
     output:
-        vcf="DUPs.vcf",
+        bed="insTOref.bed",
     params:
     shell:"""
 
-hmcnc {input.bam2} > {output.vcf}
-
+samtools view -q 10 -F 2304 -@ 3 {input.bam2} | {params.rd}/samToBed /dev/stdin/ --useH --flag   > {output.bed}
 """
+
+
+
+
+
+
+
+
+
+
+
+        intersectBed -wa -wb -a  -b $sum/annotation/repeatMask.bed |sort -k1,1 -k2,2n | python /project/mchaisso_100/cmb-16/rdagnew/summerproj//repeatMask.py | groupBy -g 1,2,3,10 -c 9| awk 'BEGIN{{OFS="\t"}} $6=$5/$4' > {output.inter}
+
+    intersectBed -v -a -b $sum/annotation/repeatMask.bed |awk 'BEGIN{{OFS="\t"}}{{print$1,$2,$3,$3-$2,0,0}}'>>{output.inter}
+
+
+
+
