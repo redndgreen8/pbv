@@ -7,9 +7,9 @@ rule all:
     input:
         bam="asmTOref.bam",
         vcf1="asmTOref.INS.vcf",
-        fasta="asmTOref.fa",
+        fasta="reads.INS.fa",
         bam2="insTOref.bam",
-        vcf="DUPs.vcf",
+        bed="insTOref.bed",
 
 rule align:
     input:
@@ -47,7 +47,7 @@ rule extractLargeSVasm:
     input:
         vcf1="asmTOref.INS.vcf",
     output:
-        fasta="asmTOref.fa",
+        fasta="reads.INS.fa",
     params:
         minl=config['minL'],
         sd=SD,
@@ -61,7 +61,7 @@ awk '{{if ($1~/^#/) {{print$0;}} else if (length($5) > length($4)+ {params.minl}
 
 rule maptoRef:
     input:
-        fasta="asmTOref.fa",
+        fasta="reads.INS.fa",
     output:
         bam2="insTOref.bam",
     params:
@@ -86,7 +86,7 @@ rule samtoBed:
     params:
     shell:"""
 
-samtools view -q 10 -F 2304 -@ 3 {input.bam2} | {params.rd}/samToBed /dev/stdin/ --useH --flag   > {output.bed}
+samtools view -q 10 -F 2304 -@ 3 {input.bam2} | samToBed /dev/stdin/ --useH --flag   > {output.bed}
 """
 
 
@@ -99,9 +99,9 @@ samtools view -q 10 -F 2304 -@ 3 {input.bam2} | {params.rd}/samToBed /dev/stdin/
 
 
 
-        intersectBed -wa -wb -a  -b $sum/annotation/repeatMask.bed |sort -k1,1 -k2,2n | python /project/mchaisso_100/cmb-16/rdagnew/summerproj//repeatMask.py | groupBy -g 1,2,3,10 -c 9| awk 'BEGIN{{OFS="\t"}} $6=$5/$4' > {output.inter}
+    #intersectBed -wa -wb -a  -b $sum/annotation/repeatMask.bed |sort -k1,1 -k2,2n | python repeatMask.py | groupBy -g 1,2,3,10 -c 9| awk 'BEGIN{{OFS="\t"}} $6=$5/$4' > {output.inter}
 
-    intersectBed -v -a -b $sum/annotation/repeatMask.bed |awk 'BEGIN{{OFS="\t"}}{{print$1,$2,$3,$3-$2,0,0}}'>>{output.inter}
+   # intersectBed -v -a -b $sum/annotation/repeatMask.bed |awk 'BEGIN{{OFS="\t"}}{{print$1,$2,$3,$3-$2,0,0}}'>>{output.inter}
 
 
 
