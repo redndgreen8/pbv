@@ -24,7 +24,7 @@ rule align:
         temp=config['temp'],
     shell:"""
  
- lra align -CONTIG -p s {input.ref} {input.asm} -t {params.thr} {params.map_p} | \
+ lra align -CONTIG -p s {input.ref} {input.asm} -t {params.thr} | \
     samtools sort -T {params.temp}/asm.$$ -m2G -o {output}
 
 """
