@@ -26,13 +26,28 @@ rule align:
  
  lra align -CONTIG -p s {input.ref} {input.asm} -t {params.thr} {params.map_p} | \
     samtools sort -T {params.temp}/asm.$$ -m2G -o {output}
-samtools index {output}
 
 """
+
+
+
+rule index:
+    input:
+        bam="asmTOref.bam",
+    output:
+        bai="asmTOref.bam.bai",
+    shell:"""
+        samtools index {input}
+
+"""
+
+
+
 
 rule findIns:
     input:
         bam="asmTOref.bam",
+        bai="asmTOref.bam.bai",
     output:
         vcf1="asmTOref.INS.vcf",
     params:
