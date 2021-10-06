@@ -19,5 +19,5 @@ for line in sys.stdin:
     for r in range(ct):
         rlen=len(seqs[r])
         if rlen > args.minl:
-            reads.append(">" + contig + str(r)+ "_" + str(ct) + "__" + str(rlen) + "\n" + seqs[r])
+            reads.append(">" + contig + str(r)+ "_" + str(ct) + ":" + str(rlen) + "\n" + seqs[r])
 sys.stdout.write("\n".join(reads))
