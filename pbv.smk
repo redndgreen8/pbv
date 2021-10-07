@@ -10,6 +10,7 @@ rule all:
         fasta="reads.INS.fa",
         bam2="insTOref.bam",
         bed="insTOref.bed",
+        rep="insTOref.rep.bed",
 
 rule align:
     input:
@@ -99,9 +100,28 @@ rule samtoBed:
     output:
         bed="insTOref.bed",
     params:
+        sd=SD,
     shell:"""
 
-samtools view -q 10 -F 2304 -@ 3 {input.bam2} | samToBed /dev/stdin/ --useH --flag   > {output.bed}
+samtools view -q 10 -F 2304 -@ 3 {input.bam2} | {params.sd}/samToBed /dev/stdin/ --useH --flag   > {output.bed}
+"""
+
+rule repContent:
+    input:
+        bed="insTOref.bed",
+    output:
+        rep="insTOref.rep.bed",
+    params:
+        sd=SD,
+    shell:"""
+rm -f {output}
+
+intersectBed -wa -wb -a {input} -b $sum/annotation/repeatMask.bed |sort -k1,1 -k2,2n | python {params.sd}/repeatMask.py | groupBy -g 1,2,3,4,5,6 -c 7 |awk 'BEGIN{{OFS="\t"}} $8=$5/$4;$9=$6/$4;$10=$7/$4' >> {output}
+
+intersectBed -v -a {input} -b $sum/annotation/repeatMask.bed |sort -k1,1 -k2,2n | python {params.sd}/repeatMask.py | groupBy -g 1,2,3,4,5,6 -c 7| awk 'BEGIN{{OFS="\t"}} $8=$5/$4;$9=$6/$4;$10=$7/$4' >> {output}
+
+
+
 """
 
 
@@ -109,14 +129,6 @@ samtools view -q 10 -F 2304 -@ 3 {input.bam2} | samToBed /dev/stdin/ --useH --fl
 
 
 
-
-
-
-
-
-    #intersectBed -wa -wb -a  -b $sum/annotation/repeatMask.bed |sort -k1,1 -k2,2n | python repeatMask.py | groupBy -g 1,2,3,10 -c 9| awk 'BEGIN{{OFS="\t"}} $6=$5/$4' > {output.inter}
-
-   # intersectBed -v -a -b $sum/annotation/repeatMask.bed |awk 'BEGIN{{OFS="\t"}}{{print$1,$2,$3,$3-$2,0,0}}'>>{output.inter}
 
 
 
