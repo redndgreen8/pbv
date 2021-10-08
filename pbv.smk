@@ -64,14 +64,15 @@ rule extractLargeSVasm:
         vcf1="asmTOref.INS.vcf",
     output:
         fasta="reads.INS.fa",
+        vcf="asmTOref.LARGE_INS.vcf",
     params:
         minl=config['minL'],
         sd=SD,
     shell:"""
-awk '{{if ($1~/^#/) {{print$0;}} else if (length($5) > length($4)+ {params.minl} || length($4) > length($5) + {params.minl} ) {{print $1"_"$2"\t"$5;}} }}'  {input} | grep -v "#" | python {params.sd}/extractFa.py > {output}
+awk '{{if ($1~/^#/) {{print$0;}} else if (length($5) > length($4)+ {params.minl} || length($4) > length($5) + {params.minl} ) {{print $1"_"$2"\t"$5;}} }}'  {input} | grep -v "#" | python {params.sd}/extractFa.py > {output.fasta}
 
-
-"""
+awk '{{if ($1~/^#/) {{print$0;}} else if (length($5) > length($4)+ {params.minl} || length($4) > length($5) + {params.minl} ) {{print ;}} }}'  {input} > {output.vcf}
+"""q
 
 
 
@@ -116,15 +117,15 @@ rule repContent:
     shell:"""
 rm -f {output}
 
-intersectBed -wa -wb -a {input} -b $sum/annotation/repeatMask.bed |sort -k1,1 -k2,2n | python {params.sd}/repeatMask.py | groupBy -g 1,2,3,4,5,6 -c 7 |awk 'BEGIN{{OFS="\t"}} $8=$5/$4;$9=$6/$4;$10=$7/$4' >> {output}
+intersectBed -wa -wb -a {input} -b $sum/annotation/repeatMask.bed |sort -k1,1 -k2,2n | python {params.sd}/repeatMask.py | groupBy -g 1,2,3,4,5,6 -c 7 |awk 'BEGIN{{OFS="\t"}} {{$8=$5/$4;$9=$6/$4;$10=$7/$4;print;}}' >> {output}
 
-intersectBed -v -a {input} -b $sum/annotation/repeatMask.bed |sort -k1,1 -k2,2n | python {params.sd}/repeatMask.py | groupBy -g 1,2,3,4,5,6 -c 7| awk 'BEGIN{{OFS="\t"}} $8=$5/$4;$9=$6/$4;$10=$7/$4' >> {output}
+intersectBed -v -a {input} -b $sum/annotation/repeatMask.bed |sort -k1,1 -k2,2n | python {params.sd}/repeatMask.py | groupBy -g 1,2,3,4,5,6 -c 7| awk 'BEGIN{{OFS="\t"}} {{$8=$5/$4;$9=$6/$4;$10=$7/$4;print;}}' >> {output}
 
 
 
 """
 
-
+#1       .       .       GT:AD   1/1:0,1
 
 
 
