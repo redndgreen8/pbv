@@ -74,7 +74,7 @@ awk '{{if ($1~/^#/) {{print$0;}} else if (length($5) > length($4)+ {params.minl}
 
 awk '{{if ($1~/^#/) {{print$0;}} else if (length($5) > length($4)+ {params.minl}  ) {{print ;}} }}'  {input} > {output.vcf}
 
-awk '{{if ($1~/^#/) {{print$0;}} else if ( length($4) > length($5) + 100 ) {{print ;}} }}'  {input} > {output.vcf2}
+awk '{{if ($1~/^#/) {{print$0;}} else if ( length($4) > length($5) + {params.minl} ) {{print ;}} }}'  {input} > {output.vcf2}
 
 """
 
