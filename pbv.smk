@@ -6,7 +6,7 @@ SD = os.path.dirname(workflow.snakefile)
 rule all:
     input:
         bam="asmTOref.bam",
-        vcf1="asmTOref.INS.vcf",
+        vcf1="asmTOref.vcf",
         fasta="reads.INS.fa",
         bam2="insTOref.bam",
         bed="insTOref.bed",
@@ -45,12 +45,12 @@ rule index:
 
 
 
-rule findIns:
+rule pileUP:
     input:
         bam="asmTOref.bam",
         bai="asmTOref.bam.bai",
     output:
-        vcf1="asmTOref.INS.vcf",
+        vcf1="asmTOref.vcf",
     params:
         asm=config['asm'],
         ref=config['ref'],
@@ -61,18 +61,22 @@ htsbox pileup -f {params.ref}  -q 10 -S 10000 -T 20 {input.bam} -c > {output.vcf
 
 rule extractLargeSVasm:
     input:
-        vcf1="asmTOref.INS.vcf",
+        vcf1="asmTOref.vcf",
     output:
         fasta="reads.INS.fa",
-        vcf="asmTOref.LARGE_INS.vcf",
+        vcf="asmTOref.INS.vcf",
+        vcf2="asmTOref.DEL.vcf",
     params:
         minl=config['minL'],
         sd=SD,
     shell:"""
-awk '{{if ($1~/^#/) {{print$0;}} else if (length($5) > length($4)+ {params.minl} || length($4) > length($5) + {params.minl} ) {{print $1"_"$2"\t"$5;}} }}'  {input} | grep -v "#" | python {params.sd}/extractFa.py > {output.fasta}
+awk '{{if ($1~/^#/) {{print$0;}} else if (length($5) > length($4)+ {params.minl}  ) {{print $1"_"$2"\t"$5;}} }}'  {input} | grep -v "#" | python {params.sd}/extractFa.py > {output.fasta}
 
-awk '{{if ($1~/^#/) {{print$0;}} else if (length($5) > length($4)+ {params.minl} || length($4) > length($5) + {params.minl} ) {{print ;}} }}'  {input} > {output.vcf}
-"""q
+awk '{{if ($1~/^#/) {{print$0;}} else if (length($5) > length($4)+ {params.minl}  ) {{print ;}} }}'  {input} > {output.vcf}
+
+awk '{{if ($1~/^#/) {{print$0;}} else if ( length($4) > length($5) + 100 ) {{print ;}} }}'  {input} > {output.vcf2}
+
+"""
 
 
 
@@ -81,6 +85,7 @@ rule maptoRef:
         fasta="reads.INS.fa",
     output:
         bam2="insTOref.bam",
+        bam2I="insTOref.bam.bai",
     params:
         ref=config['ref'],
         thr=config['t'],
