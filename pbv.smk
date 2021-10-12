@@ -72,8 +72,7 @@ rule extractLargeSVasm:
 awk '{{if ($1~/^#/) {{print$0;}} else if (length($5) > length($4)+ {params.minl} || length($4) > length($5) + {params.minl} ) {{print $1"_"$2"\t"$5;}} }}'  {input} | grep -v "#" | python {params.sd}/extractFa.py > {output.fasta}
 
 awk '{{if ($1~/^#/) {{print$0;}} else if (length($5) > length($4)+ {params.minl} || length($4) > length($5) + {params.minl} ) {{print ;}} }}'  {input} > {output.vcf}
-"""q
-
+"""
 
 
 rule maptoRef:
