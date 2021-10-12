@@ -2,7 +2,7 @@ import sys
 
 
 
-sys.stdout.write("""##fileformat=VCFv4.2
+#sys.stdout.write("""##fileformat=VCFv4.2
 ##FILTER=<ID=PASS,Description="All filters passed">
 ##source=htsbox-pileup-r345
 ##reference=/project/mchaisso_100/projects/HPRC/pbv_run/hg38.no_alts.fasta
@@ -77,7 +77,7 @@ for line in sys.stdin:
     spann =   int(ln[6])  - int(ln[5])
     out.append( str(spann) )
 
-    if len(ln)>10: 
+    if ln[10] != "-1": 
         #print(ln[11:13])
         max_s = int(ln[11]) #max(int(ln[11]),int(ln[1]))
         min_e = int(ln[12]) #min( int(ln[12]),int(ln[2]) )

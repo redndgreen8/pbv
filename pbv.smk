@@ -122,10 +122,7 @@ rule repContent:
     shell:"""
 rm -f {output}
 
-intersectBed -wa -wb -a {input} -b $sum/annotation/repeatMask.bed |sort -k1,1 -k2,2n | python {params.sd}/repeatMask.py | groupBy -g 1,2,3,4,5,6 -c 7 |awk 'BEGIN{{OFS="\t"}} {{$8=$5/$4;$9=$6/$4;$10=$7/$4;print;}}' >> {output}
-
-intersectBed -v -a {input} -b $sum/annotation/repeatMask.bed |sort -k1,1 -k2,2n | python {params.sd}/repeatMask.py | groupBy -g 1,2,3,4,5,6 -c 7| awk 'BEGIN{{OFS="\t"}} {{$8=$5/$4;$9=$6/$4;$10=$7/$4;print;}}' >> {output}
-
+intersectBed -loj -a {input} -b $sum/annotation/repeatMask.bed |sort -k1,1 -k2,2n | python {params.sd}/repeatMask.py | groupBy -g 1,2,3,4,5,6 -c 7 |awk 'BEGIN{{OFS="\t"}} {{$8=$5/$4;$9=$6/$4;$10=$7/$4;print;}}' > {output}
 
 
 """
