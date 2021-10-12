@@ -24,7 +24,7 @@ parser.add_argument("--outdir", help="Output directory",default=".")
 #    parser.add_argument("--configfile", help="provide config json ")
 #parser.add_argument("--scr",  help="Scripts DIR",default={DIR} )
 parser.add_argument("--temp", help="temp directory", default="/tmp")
-
+parser.add_argument("--repf", help="max repeat fraction [0.8]", default=0.8, type=float)
 
 
 
