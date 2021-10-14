@@ -9,8 +9,9 @@ rule all:
         vcf1="asmTOref.vcf",
         fasta="reads.INS.fa",
         bam2="insTOref.bam",
-        bed="insTOref.bed",
+        bed2="insTOref.bed",
         rep="insTOref.rep.bed",
+        bed="asmTOref.bed",
 
 rule align:
     input:
@@ -42,7 +43,18 @@ rule index:
 
 """
 
-
+rule samToBed:
+    input:
+        bam="asmTOref.bam",
+        bai="asmTOref.bam.bai",
+    output:
+        bed="asmTOref.bed",
+    params:
+        asm=config['asm'],
+        ref=config['ref'],
+    shell:"""
+samtools view -q 10 -F 2304 -@ 3 {input.bam} | {params.sd}/samToBed /dev/stdin --reportAccuracy --flag --useH > {output}
+"""
 
 
 rule pileUP:
@@ -100,7 +112,7 @@ samtools index {output.bam2}
 
 
 
-rule samtoBed:
+rule samtoBedINS:
     input:
         bam2="insTOref.bam",
     output:
@@ -109,7 +121,7 @@ rule samtoBed:
         sd=SD,
     shell:"""
 
-samtools view -q 10 -F 2304 -@ 3 {input.bam2} | {params.sd}/samToBed /dev/stdin/ --useH --flag   > {output.bed}
+samtools view -q 10 -F 2304 -@ 3 {input.bam2} | {params.sd}/samToBed /dev/stdin/ --reportAccuracy --useH --flag   > {output.bed}
 """
 
 rule repContent:
@@ -122,16 +134,17 @@ rule repContent:
         repF=config['repf'],
     shell:"""
 
-intersectBed -loj -a {input} -b $sum/annotation/repeatMask.bed |sort -k1,1 -k2,2n | python {params.sd}/repeatMask.py | groupBy -g 1,2,3,4,5,6 -c 7 |awk 'BEGIN{{OFS="\t"}} {{$8=$5/$4;$9=$6/$4;$10=$7/$4;print;}}' | awk '$10 < {params.repF} ' > {output}
+intersectBed -loj -a {input} -b $sum/annotation/repeatMask.bed |sort -k1,1 -k2,2n |\
+ python {params.sd}/repeatMask.py | groupBy -g 1,2,3,4,5,6 -c 7 |\
+ awk 'BEGIN{{OFS="\t"}} {{$8=$5/$4;$9=$6/$4;$10=$7/$5;print;}}' > {output}
 
 
 """
 
-#1       .       .       GT:AD   1/1:0,1
 
 
 
-
+rule bedTOvcf:
 
 
 
