@@ -144,8 +144,3 @@ intersectBed -loj -a {input} -b $sum/annotation/repeatMask.bed |sort -k1,1 -k2,2
 
 
 
-rule bedTOvcf:
-
-
-
-
