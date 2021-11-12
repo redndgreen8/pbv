@@ -31,8 +31,6 @@ rule align:
 
 """
 
-
-
 rule index:
     input:
         bam="asmTOref.bam",
@@ -52,10 +50,10 @@ rule samToBed:
     params:
         asm=config['asm'],
         ref=config['ref'],
+        sd=SD,
     shell:"""
 samtools view -q 10 -F 2304 -@ 3 {input.bam} | {params.sd}/samToBed /dev/stdin --reportAccuracy --flag --useH > {output}
 """
-
 
 rule pileUP:
     input:
@@ -90,8 +88,6 @@ awk '{{if ($1~/^#/) {{print$0;}} else if ( length($4) > length($5) + {params.min
 
 """
 
-
-
 rule maptoRef:
     input:
         fasta="reads.INS.fa",
@@ -104,13 +100,11 @@ rule maptoRef:
         temp=config['temp'],
     shell:"""
 
-minimap2 -a {params.ref} {input.fasta} -t {params.thr} | \
+minimap2 -a {params.ref} {input.fasta} -t {params.thr} -N 1| \
    samtools sort -T {params.temp}/asm.$$ -m2G -o {output.bam2}
 samtools index {output.bam2}
 
 """
-
-
 
 rule samtoBedINS:
     input:
